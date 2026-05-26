@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Share2 } from 'lucide-react';
 import { Sidebar, MobilePreview, DashboardStats, LinkCard } from '../components';
 import type { Link as LinkType, User, AnalyticsData } from '../types';
+import { store } from '../lib/store';
 
 export function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -12,9 +13,9 @@ export function AdminDashboard() {
   useEffect(() => {
     // Fetch initial data
     Promise.all([
-      fetch('/api/user').then(r => r.json()),
-      fetch('/api/links').then(r => r.json()),
-      fetch('/api/analytics').then(r => r.json())
+      store.getUser(),
+      store.getLinks(),
+      store.getAnalytics()
     ]).then(([u, l, a]) => {
       setUser(u);
       setLinks(l);
@@ -24,29 +25,28 @@ export function AdminDashboard() {
   }, []);
 
   const handleUpdateLink = async (id: string, updates: Partial<LinkType>) => {
-    setLinks(links.map(l => l.id === id ? { ...l, ...updates } : l));
-    // Optimistic UI, fire request to backend
-    fetch(`/api/links/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updates)
-    });
+    const updatedLinks = links.map(l => l.id === id ? { ...l, ...updates } : l);
+    setLinks(updatedLinks);
+    await store.saveLinks(updatedLinks);
   };
 
   const handleDeleteLink = async (id: string) => {
-    setLinks(links.filter(l => l.id !== id));
-    fetch(`/api/links/${id}`, { method: 'DELETE' });
+    const updatedLinks = links.filter(l => l.id !== id);
+    setLinks(updatedLinks);
+    await store.saveLinks(updatedLinks);
   };
 
   const handleAddLink = async () => {
-    const newLinkData = { title: 'New Link', url: 'https://' };
-    const res = await fetch('/api/links', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newLinkData)
-    });
-    const savedLink = await res.json();
-    setLinks([...links, savedLink]);
+    const newLinkData = { 
+      id: Date.now().toString(), 
+      title: 'New Link', 
+      url: 'https://', 
+      clicks: 0, 
+      active: true 
+    };
+    const updatedLinks = [...links, newLinkData];
+    setLinks(updatedLinks);
+    await store.saveLinks(updatedLinks);
   };
 
   if (loading) {

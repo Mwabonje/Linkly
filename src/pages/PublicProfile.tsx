@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import type { User, Link as LinkType } from '../types';
 import { Globe, Mail, MessageSquare, Share2 } from 'lucide-react';
+import { store } from '../lib/store';
 
 export function PublicProfile() {
   const { username } = useParams<{ username: string }>();
@@ -16,8 +17,8 @@ export function PublicProfile() {
     document.title = `@${username} | Linkly`;
     
     Promise.all([
-      fetch('/api/user').then(r => r.json()),
-      fetch('/api/links').then(r => r.json()),
+      store.getUser(),
+      store.getLinks(),
     ])
     .then(([u, l]) => {
       // simulate check
