@@ -28,6 +28,9 @@ export const store = {
     const saved = localStorage.getItem('linkly_user');
     return saved ? JSON.parse(saved) : defaultUser;
   },
+  saveUser: async (user: User) => {
+    localStorage.setItem('linkly_user', JSON.stringify(user));
+  },
   getLinks: async (): Promise<LinkType[]> => {
     const saved = localStorage.getItem('linkly_links');
     return saved ? JSON.parse(saved) : defaultLinks;

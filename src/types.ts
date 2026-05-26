@@ -12,6 +12,7 @@ export interface User {
   fullName: string;
   role: string;
   avatarUrl: string;
+  theme?: string;
 }
 
 export interface AnalyticsData {

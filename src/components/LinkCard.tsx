@@ -62,7 +62,7 @@ export function LinkCard({ link, onUpdate, onDelete, index, onDragStart, onDragO
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full bg-[#0A0D14] border border-white/10 rounded-lg px-3 py-2 text-sm font-medium text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted/50"
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted/50"
                   placeholder="Link Title"
                 />
               </div>
@@ -72,14 +72,14 @@ export function LinkCard({ link, onUpdate, onDelete, index, onDragStart, onDragO
                   type="text"
                   value={editUrl}
                   onChange={(e) => setEditUrl(e.target.value)}
-                  className="w-full bg-[#0A0D14] border border-white/10 rounded-lg px-3 py-2 text-sm text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted/50"
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted/50"
                   placeholder="https://example.com"
                 />
               </div>
             </div>
           ) : (
             <>
-              <h3 className="font-semibold text-white truncate text-base flex items-center mb-0.5">
+              <h3 className="font-semibold truncate text-base flex items-center mb-0.5">
                 {link.title}
               </h3>
               <p className="text-muted text-sm truncate flex items-center">

@@ -13,7 +13,13 @@ export function AdminDashboard() {
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: '', show: false });
   const location = useLocation();
+
+  const showToast = (message: string) => {
+    setToast({ message, show: true });
+    setTimeout(() => setToast({ message: '', show: false }), 3000);
+  };
 
   useEffect(() => {
     // Fetch initial data
@@ -29,16 +35,29 @@ export function AdminDashboard() {
     });
   }, []);
 
+  const handleUpdateUser = async (updates: Partial<User>) => {
+    if (!user) return;
+    const updatedUser = { ...user, ...updates };
+    setUser(updatedUser);
+    await store.saveUser(updatedUser);
+    if (updates.theme) {
+      document.documentElement.dataset.theme = updates.theme;
+    }
+    showToast('Profile updated');
+  };
+
   const handleUpdateLink = async (id: string, updates: Partial<LinkType>) => {
     const updatedLinks = links.map(l => l.id === id ? { ...l, ...updates } : l);
     setLinks(updatedLinks);
     await store.saveLinks(updatedLinks);
+    showToast('Link updated successfully');
   };
 
   const handleDeleteLink = async (id: string) => {
     const updatedLinks = links.filter(l => l.id !== id);
     setLinks(updatedLinks);
     await store.saveLinks(updatedLinks);
+    showToast('Link deleted');
   };
 
   const handleAddLink = async () => {
@@ -52,6 +71,7 @@ export function AdminDashboard() {
     const updatedLinks = [...links, newLinkData];
     setLinks(updatedLinks);
     await store.saveLinks(updatedLinks);
+    showToast('New link added');
   };
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
@@ -78,6 +98,7 @@ export function AdminDashboard() {
   const handleDragEnd = async () => {
     setDraggedId(null);
     await store.saveLinks(links);
+    showToast('Link order saved');
   };
 
   if (loading) {
@@ -119,14 +140,14 @@ export function AdminDashboard() {
         {location.pathname === '/admin/analytics' ? (
           <AnalyticsTab data={analytics} />
         ) : location.pathname === '/admin/appearance' ? (
-          <AppearanceTab user={user} />
+          <AppearanceTab user={user} onUpdateUser={handleUpdateUser} />
         ) : location.pathname === '/admin/settings' ? (
           <SettingsTab user={user} />
         ) : (
           <>
             <header className="mb-8 lg:mb-10 max-w-4xl mx-auto flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-1 sm:mb-2 text-white">My Links</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-1 sm:mb-2">My Links</h1>
                 <p className="text-muted text-sm sm:text-base">Personalize and manage your digital identity.</p>
               </div>
               <button 
@@ -169,7 +190,7 @@ export function AdminDashboard() {
         )}
       </main>
 
-      <aside className="hidden xl:flex w-[440px] h-screen fixed right-0 border-l border-border/50 bg-[#090C15] flex-col items-center justify-center z-30">
+      <aside className="hidden xl:flex w-[440px] h-screen fixed right-0 border-l border-border/50 bg-sidebar flex-col items-center justify-center z-30">
         <div className="w-full absolute top-0 pt-6 px-8 flex justify-end">
           <button className="flex items-center space-x-2 text-muted hover:text-white transition-colors text-sm font-medium px-4 py-2 bg-surface rounded-lg border border-white/5">
             <Share2 className="w-4 h-4" />
@@ -190,6 +211,14 @@ export function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* Toast Notification */}
+      <div 
+        className={`fixed bottom-8 left-1/2 -translate-x-1/2 lg:translate-x-0 lg:left-[calc(260px+(100vw-260px-440px)/2)] lg:-translate-x-1/2 z-50 bg-surface text-white px-5 py-3 rounded-xl shadow-2xl border border-white/10 flex items-center space-x-3 transition-all duration-300 ${toast.show ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0 pointer-events-none'}`}
+      >
+        <div className="w-2 h-2 rounded-full bg-primary-hover"></div>
+        <span className="text-sm font-medium">{toast.message}</span>
+      </div>
     </div>
   );
 }

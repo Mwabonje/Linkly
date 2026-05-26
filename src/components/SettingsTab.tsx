@@ -13,7 +13,7 @@ export function SettingsTab({ user }: { user: User | null }) {
 
       <div className="space-y-6">
         <div className="bg-surface border border-white/5 rounded-2xl p-6 shadow-sm">
-          <h3 className="text-lg font-semibold mb-6 flex items-center text-white">
+          <h3 className="text-lg font-semibold mb-6 flex items-center">
             <Mail className="w-5 h-5 mr-3 text-primary" /> 
             My Account
           </h3>
@@ -24,7 +24,7 @@ export function SettingsTab({ user }: { user: User | null }) {
                 <input 
                   type="text" 
                   defaultValue={user.username} 
-                  className="w-full bg-[#0A0D14] border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none opacity-60 cursor-not-allowed" 
+                  className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none opacity-60 cursor-not-allowed" 
                   disabled 
                 />
               </div>
@@ -33,7 +33,7 @@ export function SettingsTab({ user }: { user: User | null }) {
                 <input 
                   type="email" 
                   defaultValue={`${user.username}@gmail.com`} 
-                  className="w-full bg-[#0A0D14] border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all" 
+                  className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all" 
                 />
               </div>
             </div>
@@ -46,13 +46,13 @@ export function SettingsTab({ user }: { user: User | null }) {
         </div>
 
         <div className="bg-surface border border-white/5 rounded-2xl p-6 shadow-sm">
-          <h3 className="text-lg font-semibold mb-5 flex items-center text-white">
+          <h3 className="text-lg font-semibold mb-5 flex items-center">
             <Shield className="w-5 h-5 mr-3 text-emerald-400" /> 
             Subscription
           </h3>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 bg-[#090C15] rounded-xl border border-white/5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 bg-sidebar rounded-xl border border-white/5">
             <div>
-              <div className="font-semibold text-white mb-1 tracking-wide">Free Plan</div>
+              <div className="font-semibold mb-1 tracking-wide">Free Plan</div>
               <div className="text-sm text-muted">Basic link in bio features with standard analytics.</div>
             </div>
             <button className="bg-white text-black hover:bg-gray-200 py-2.5 px-5 rounded-xl text-sm font-semibold transition-colors shadow-md">

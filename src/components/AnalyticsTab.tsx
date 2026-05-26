@@ -31,21 +31,21 @@ export function AnalyticsTab({ data }: { data: AnalyticsData | null }) {
             <AreaChart data={mockChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.4}/>
-                  <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#6E8649" stopOpacity={0.4}/>
+                  <stop offset="95%" stopColor="#6E8649" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#2D531A" vertical={false} />
               <XAxis 
                 dataKey="name" 
-                stroke="#94A3B8" 
+                stroke="#A3BA8B" 
                 fontSize={12} 
                 tickLine={false} 
                 axisLine={false} 
                 dy={10}
               />
               <YAxis 
-                stroke="#94A3B8" 
+                stroke="#A3BA8B" 
                 fontSize={12} 
                 tickLine={false} 
                 axisLine={false} 
@@ -53,18 +53,18 @@ export function AnalyticsTab({ data }: { data: AnalyticsData | null }) {
                 dx={-10}
               />
               <Tooltip
-                contentStyle={{ backgroundColor: '#1E293B', borderColor: '#334155', borderRadius: '12px', color: '#fff', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                contentStyle={{ backgroundColor: '#0D330E', borderColor: '#2D531A', borderRadius: '12px', color: '#fff', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                 itemStyle={{ color: '#fff', fontWeight: 500 }}
-                cursor={{ stroke: '#475569', strokeWidth: 1, strokeDasharray: '4 4' }}
+                cursor={{ stroke: '#2D531A', strokeWidth: 1, strokeDasharray: '4 4' }}
               />
               <Area 
                 type="monotone" 
                 dataKey="views" 
-                stroke="#7C3AED" 
+                stroke="#6E8649" 
                 strokeWidth={3} 
                 fillOpacity={1} 
                 fill="url(#colorViews)" 
-                activeDot={{ r: 6, fill: '#7C3AED', stroke: '#fff', strokeWidth: 2 }}
+                activeDot={{ r: 6, fill: '#6E8649', stroke: '#fff', strokeWidth: 2 }}
               />
             </AreaChart>
           </ResponsiveContainer>
