@@ -1,0 +1,6 @@
+{
+  "name": "Linkly",
+  "description": "Modern SaaS link-in-bio platform with dashboard, analytics, and custom themes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
