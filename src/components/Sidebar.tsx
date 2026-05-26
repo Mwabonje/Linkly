@@ -63,7 +63,17 @@ export function Sidebar({ user, className, onNavigate }: SidebarProps) {
             <img src={user.avatarUrl} alt={user.fullName} className="w-10 h-10 rounded-full object-cover border border-border" />
             <div className="flex-1 overflow-hidden">
               <p className="text-sm font-medium text-white truncate">{user.fullName}</p>
-              <p className="text-xs text-muted truncate">{user.username}@linkly.io</p>
+              <button 
+                onClick={async () => {
+                  if (typeof window !== 'undefined' && (await import('../lib/supabase')).supabase) {
+                     const { supabase } = await import('../lib/supabase');
+                     await supabase?.auth.signOut();
+                  }
+                }} 
+                className="text-xs text-muted hover:text-white truncate transition-colors text-left"
+              >
+                Sign out
+              </button>
             </div>
           </div>
         )}
