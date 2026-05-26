@@ -14,7 +14,7 @@ export function PublicProfile() {
   useEffect(() => {
     // Reusing the same simulated endpoint for demo purposes, 
     // ideally this fetch specific user data by username
-    document.title = `@${username} | Linkly`;
+    document.title = username ? `@${username} | Linkly` : 'My Profile | Linkly';
     
     Promise.all([
       store.getUser(),
@@ -22,7 +22,7 @@ export function PublicProfile() {
     ])
     .then(([u, l]) => {
       // simulate check
-      if (u.username !== username && username !== 'alex') {
+      if (username && u.username !== username && username !== 'alex') {
         setError(true);
       } else {
         setUser(u);
