@@ -5,9 +5,11 @@ import type { User } from '../types';
 
 interface SidebarProps {
   user: User | null;
+  className?: string;
+  onNavigate?: () => void;
 }
 
-export function Sidebar({ user }: SidebarProps) {
+export function Sidebar({ user, className, onNavigate }: SidebarProps) {
   const location = useLocation();
 
   const navItems = [
@@ -18,7 +20,7 @@ export function Sidebar({ user }: SidebarProps) {
   ];
 
   return (
-    <div className="w-[260px] h-screen bg-sidebar fixed border-r border-border/50 flex flex-col justify-between py-6 top-0 left-0">
+    <div className={cn("w-[260px] h-screen bg-sidebar flex flex-col justify-between py-6", className)}>
       <div>
         <div className="px-6 mb-8">
           <h1 className="text-2xl font-bold tracking-tight">Linkly</h1>
@@ -34,6 +36,7 @@ export function Sidebar({ user }: SidebarProps) {
               <Link
                 key={item.name}
                 to={item.path}
+                onClick={onNavigate}
                 className={cn(
                   "flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                   isActive 

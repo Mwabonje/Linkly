@@ -50,7 +50,7 @@ export function SettingsTab({ user }: { user: User | null }) {
             <Shield className="w-5 h-5 mr-3 text-emerald-400" /> 
             Subscription
           </h3>
-          <div className="flex items-center justify-between p-5 bg-[#090C15] rounded-xl border border-white/5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 bg-[#090C15] rounded-xl border border-white/5">
             <div>
               <div className="font-semibold text-white mb-1 tracking-wide">Free Plan</div>
               <div className="text-sm text-muted">Basic link in bio features with standard analytics.</div>

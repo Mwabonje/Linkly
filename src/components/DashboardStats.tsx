@@ -5,7 +5,7 @@ export function DashboardStats({ data }: { data: AnalyticsData | null }) {
   if (!data) return <div className="animate-pulse h-32 bg-surface rounded-2xl mb-8"></div>;
 
   return (
-    <div className="grid grid-cols-3 gap-6 mb-10">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 lg:mb-10">
       <div className="bg-surface rounded-2xl p-6 border border-white/5">
         <div className="flex items-center justify-between mb-4">
           <div className="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center">

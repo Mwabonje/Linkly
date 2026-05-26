@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Share2 } from 'lucide-react';
+import { Plus, Share2, Menu, X } from 'lucide-react';
 import { Sidebar, MobilePreview, DashboardStats, LinkCard, AnalyticsTab, AppearanceTab, SettingsTab } from '../components';
 import type { Link as LinkType, User, AnalyticsData } from '../types';
 import { store } from '../lib/store';
@@ -11,6 +11,8 @@ export function AdminDashboard() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -84,9 +86,36 @@ export function AdminDashboard() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar user={user} />
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 inset-x-0 h-16 bg-sidebar border-b border-border/50 flex items-center justify-between px-4 z-40">
+        <div className="flex items-center space-x-3">
+          <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -ml-2 text-white">
+            <Menu className="w-6 h-6" />
+          </button>
+          <h1 className="text-xl font-bold tracking-tight">Linkly</h1>
+        </div>
+        <button onClick={() => setIsPreviewOpen(true)} className="px-3 py-1.5 border border-white/10 rounded-lg text-sm bg-surface font-medium text-white shadow-sm flex items-center space-x-2">
+          <span>Preview</span>
+        </button>
+      </div>
+
+      {/* Mobile Menu Modal */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex lg:hidden">
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)}></div>
+          <div className="relative flex w-[260px] flex-col bg-sidebar border-r border-border/50 z-50 animate-in slide-in-from-left">
+            <button onClick={() => setIsMobileMenuOpen(false)} className="absolute top-4 right-4 p-2 text-muted hover:text-white">
+              <X className="w-5 h-5" />
+            </button>
+            <Sidebar user={user} onNavigate={() => setIsMobileMenuOpen(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Sidebar */}
+      <Sidebar user={user} className="hidden lg:flex fixed left-0 top-0 border-r border-border/50 z-30" />
       
-      <main className="flex-1 ml-[260px] mr-[440px] px-12 py-10 overflow-y-auto">
+      <main className="flex-1 lg:ml-[260px] xl:mr-[440px] px-4 sm:px-8 lg:px-12 py-24 lg:py-10 overflow-y-auto max-w-full">
         {location.pathname === '/admin/analytics' ? (
           <AnalyticsTab data={analytics} />
         ) : location.pathname === '/admin/appearance' ? (
@@ -95,14 +124,14 @@ export function AdminDashboard() {
           <SettingsTab user={user} />
         ) : (
           <>
-            <header className="mb-10 max-w-4xl mx-auto flex justify-between items-end">
+            <header className="mb-8 lg:mb-10 max-w-4xl mx-auto flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
               <div>
-                <h1 className="text-3xl font-bold tracking-tight mb-2">My Links</h1>
-                <p className="text-muted">Personalize and manage your digital identity.</p>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-1 sm:mb-2 text-white">My Links</h1>
+                <p className="text-muted text-sm sm:text-base">Personalize and manage your digital identity.</p>
               </div>
               <button 
                 onClick={handleAddLink}
-                className="bg-primary hover:bg-primary-hover text-white font-medium py-2.5 px-6 rounded-xl flex items-center space-x-2 transition-colors shadow-lg shadow-primary/25"
+                className="bg-primary hover:bg-primary-hover text-white font-medium py-2.5 px-6 rounded-xl flex items-center justify-center space-x-2 transition-colors shadow-lg shadow-primary/25 w-full sm:w-auto"
               >
                 <Plus className="w-5 h-5" />
                 <span>Add New Link</span>
@@ -140,7 +169,7 @@ export function AdminDashboard() {
         )}
       </main>
 
-      <aside className="w-[440px] h-screen fixed right-0 border-l border-border/50 bg-[#090C15] flex flex-col items-center justify-center">
+      <aside className="hidden xl:flex w-[440px] h-screen fixed right-0 border-l border-border/50 bg-[#090C15] flex-col items-center justify-center z-30">
         <div className="w-full absolute top-0 pt-6 px-8 flex justify-end">
           <button className="flex items-center space-x-2 text-muted hover:text-white transition-colors text-sm font-medium px-4 py-2 bg-surface rounded-lg border border-white/5">
             <Share2 className="w-4 h-4" />
@@ -149,6 +178,18 @@ export function AdminDashboard() {
         </div>
         <MobilePreview user={user} links={links} />
       </aside>
+
+      {/* Mobile Preview Modal */}
+      {isPreviewOpen && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md flex items-center justify-center p-4 xl:hidden animate-in fade-in zoom-in-95 duration-200">
+          <button onClick={() => setIsPreviewOpen(false)} className="absolute top-4 sm:top-6 right-4 sm:right-6 p-2 sm:p-3 bg-surface rounded-full text-white border border-white/10 shadow-xl z-50">
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+          <div className="scale-75 sm:scale-90 md:scale-100 origin-center">
+            <MobilePreview user={user} links={links} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

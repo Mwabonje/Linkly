@@ -44,13 +44,13 @@ export function LinkCard({ link, onUpdate, onDelete, index, onDragStart, onDragO
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}
     >
-      <div className="flex items-center space-x-4 flex-1">
-        <div className="w-10 h-10 flex items-center justify-center cursor-grab text-muted hover:text-white transition-colors opacity-50 group-hover:opacity-100">
+      <div className="flex items-center space-x-2 sm:space-x-4 flex-1 overflow-hidden pr-2 sm:pr-4">
+        <div className="w-8 sm:w-10 h-10 flex items-center justify-center cursor-grab text-muted hover:text-white transition-colors opacity-100 md:opacity-50 group-hover:opacity-100 shrink-0">
           <GripVertical className="w-5 h-5" />
         </div>
         
-        <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
-          <LayoutGrid className="w-5 h-5 text-muted" />
+        <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
+          <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5 text-muted" />
         </div>
         
         <div className="flex-1 min-w-0 pr-4">
@@ -99,46 +99,46 @@ export function LinkCard({ link, onUpdate, onDelete, index, onDragStart, onDragO
         )}
       </div>
       
-      <div className="flex items-center space-x-4 pl-4 border-l border-white/5 h-full">
+      <div className="flex items-center pl-2 sm:pl-4 border-l border-white/5 h-full shrink-0">
         {isEditing ? (
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             <button 
               onClick={handleCancel}
-              className="text-muted hover:text-rose-400 transition-colors p-2.5 rounded-lg hover:bg-rose-400/10 text-sm font-medium"
+              className="text-muted hover:text-rose-400 transition-colors p-1.5 sm:p-2.5 rounded-lg hover:bg-rose-400/10 text-xs sm:text-sm font-medium"
             >
               Cancel
             </button>
             <button 
               onClick={handleSave}
-              className="bg-primary hover:bg-primary-hover text-white transition-colors py-2 px-4 rounded-lg flex items-center space-x-2 text-sm font-medium"
+              className="bg-primary hover:bg-primary-hover text-white transition-colors py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg flex items-center space-x-2 text-xs sm:text-sm font-medium"
             >
               <span>Save</span>
             </button>
           </div>
         ) : (
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-1">
+          <div className="flex items-center sm:space-x-3">
+            <div className="flex items-center space-x-0.5 sm:space-x-1">
               <button 
                 onClick={() => setIsEditing(true)}
-                className="text-muted hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5"
+                className="text-muted hover:text-white transition-colors p-1.5 sm:p-2 rounded-lg hover:bg-white/5"
               >
-                <Pencil className="w-4 h-4" />
+                <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
               <button 
                 onClick={() => onDelete(link.id)}
-                className="text-muted hover:text-rose-400 transition-colors p-2 rounded-lg hover:bg-rose-400/10"
+                className="text-muted hover:text-rose-400 transition-colors p-1.5 sm:p-2 rounded-lg hover:bg-rose-400/10"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             </div>
             
-            <div className="w-[1px] h-8 bg-white/5 mx-2" />
+            <div className="w-[1px] h-6 sm:h-8 bg-white/5 mx-1 sm:mx-2" />
             
             {/* Simple Switch */}
             <button 
               onClick={toggleActive}
               className={cn(
-                "w-12 h-6 rounded-full relative transition-colors duration-200 ease-in-out border-2",
+                "w-10 sm:w-12 h-5 sm:h-6 rounded-full relative transition-colors duration-200 ease-in-out border-2",
                 link.active 
                   ? "bg-primary border-primary" 
                   : "bg-surface-hover border-surface-hover"
@@ -146,8 +146,8 @@ export function LinkCard({ link, onUpdate, onDelete, index, onDragStart, onDragO
             >
               <span 
                 className={cn(
-                  "absolute top-0.5 left-0.5 bg-white w-4 h-4 rounded-full transition-transform duration-200 ease-in-out shadow-sm block",
-                  link.active ? "translate-x-6" : "translate-x-0"
+                  "absolute top-0.5 left-0.5 bg-white w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-transform duration-200 ease-in-out shadow-sm block",
+                  link.active ? "translate-x-5 sm:translate-x-6" : "translate-x-0"
                 )}
               />
             </button>

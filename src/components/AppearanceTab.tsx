@@ -13,7 +13,7 @@ export function AppearanceTab({ user }: { user: User | null }) {
 
       <div className="bg-surface border border-white/5 rounded-2xl p-6 mb-8 mt-8 shadow-sm">
         <h3 className="text-lg font-semibold mb-6 text-white">Profile</h3>
-        <div className="flex items-center space-x-6 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center space-y-6 md:space-y-0 space-x-0 md:space-x-6 mb-6">
           <div className="relative group">
             <img 
               src={user.avatarUrl} 
@@ -47,7 +47,7 @@ export function AppearanceTab({ user }: { user: User | null }) {
 
       <div className="bg-surface border border-white/5 rounded-2xl p-6 shadow-sm">
         <h3 className="text-lg font-semibold mb-6 text-white">Themes</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           {/* Active Theme */}
           <div className="border-2 border-primary rounded-xl p-2 cursor-pointer relative bg-[#090C15]">
             <div className="absolute -top-3 -right-3 flex bg-primary text-white rounded-full p-1 shadow-lg ring-4 ring-surface">
