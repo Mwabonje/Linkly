@@ -8,9 +8,13 @@ interface LinkCardProps {
   onUpdate: (id: string, updates: Partial<LinkType>) => void;
   onDelete: (id: string) => void;
   index: number;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragOver?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  isDragging?: boolean;
 }
 
-export function LinkCard({ link, onUpdate, onDelete, index }: LinkCardProps) {
+export function LinkCard({ link, onUpdate, onDelete, index, onDragStart, onDragOver, onDragEnd, isDragging }: LinkCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(link.title);
   const [editUrl, setEditUrl] = useState(link.url);
@@ -32,9 +36,13 @@ export function LinkCard({ link, onUpdate, onDelete, index }: LinkCardProps) {
     <div 
       className={cn(
         "bg-surface rounded-2xl p-4 flex items-center justify-between border transition-all group",
-        isEditing ? "border-primary/50 shadow-lg shadow-primary/5" : "border-transparent hover:border-white/5"
+        isEditing ? "border-primary/50 shadow-lg shadow-primary/5" : "border-transparent hover:border-white/5",
+        isDragging && "opacity-50 scale-[0.98] border-primary/30"
       )}
       draggable={!isEditing}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragEnd={onDragEnd}
     >
       <div className="flex items-center space-x-4 flex-1">
         <div className="w-10 h-10 flex items-center justify-center cursor-grab text-muted hover:text-white transition-colors opacity-50 group-hover:opacity-100">

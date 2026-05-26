@@ -9,6 +9,7 @@ export function AdminDashboard() {
   const [links, setLinks] = useState<LinkType[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [draggedId, setDraggedId] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch initial data
@@ -47,6 +48,32 @@ export function AdminDashboard() {
     const updatedLinks = [...links, newLinkData];
     setLinks(updatedLinks);
     await store.saveLinks(updatedLinks);
+  };
+
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    setDraggedId(id);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (!draggedId) return;
+
+    const draggedIndex = links.findIndex(l => l.id === draggedId);
+    if (draggedIndex === index || draggedIndex === -1) return;
+
+    const items = [...links];
+    const draggedItem = items[draggedIndex];
+    items.splice(draggedIndex, 1);
+    items.splice(index, 0, draggedItem);
+    
+    setLinks(items);
+  };
+
+  const handleDragEnd = async () => {
+    setDraggedId(null);
+    await store.saveLinks(links);
   };
 
   if (loading) {
@@ -90,6 +117,10 @@ export function AdminDashboard() {
                   index={index}
                   onUpdate={handleUpdateLink}
                   onDelete={handleDeleteLink}
+                  onDragStart={(e) => handleDragStart(e, link.id)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragEnd={handleDragEnd}
+                  isDragging={draggedId === link.id}
                 />
               </div>
             ))}
