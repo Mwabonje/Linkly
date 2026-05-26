@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Plus, Share2 } from 'lucide-react';
-import { Sidebar, MobilePreview, DashboardStats, LinkCard } from '../components';
+import { Sidebar, MobilePreview, DashboardStats, LinkCard, AnalyticsTab, AppearanceTab, SettingsTab } from '../components';
 import type { Link as LinkType, User, AnalyticsData } from '../types';
 import { store } from '../lib/store';
+import { useLocation } from 'react-router-dom';
 
 export function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -10,6 +11,7 @@ export function AdminDashboard() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const location = useLocation();
 
   useEffect(() => {
     // Fetch initial data
@@ -85,47 +87,57 @@ export function AdminDashboard() {
       <Sidebar user={user} />
       
       <main className="flex-1 ml-[260px] mr-[440px] px-12 py-10 overflow-y-auto">
-        <header className="mb-10 max-w-4xl mx-auto flex justify-between items-end">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2">My Links</h1>
-            <p className="text-muted">Personalize and manage your digital identity.</p>
-          </div>
-          <button 
-            onClick={handleAddLink}
-            className="bg-primary hover:bg-primary-hover text-white font-medium py-2.5 px-6 rounded-xl flex items-center space-x-2 transition-colors shadow-lg shadow-primary/25"
-          >
-            <Plus className="w-5 h-5" />
-            <span>Add New Link</span>
-          </button>
-        </header>
-
-        <div className="max-w-4xl mx-auto">
-          <DashboardStats data={analytics} />
-
-          <div className="space-y-4">
-            {links.map((link, index) => (
-              <div 
-                key={link.id} 
-                className="animate-in"
-                style={{ 
-                  '--animation-delay': `${index * 100}ms`, 
-                  '--animation-duration': '600ms' 
-                } as React.CSSProperties}
-              >
-                <LinkCard 
-                  link={link} 
-                  index={index}
-                  onUpdate={handleUpdateLink}
-                  onDelete={handleDeleteLink}
-                  onDragStart={(e) => handleDragStart(e, link.id)}
-                  onDragOver={(e) => handleDragOver(e, index)}
-                  onDragEnd={handleDragEnd}
-                  isDragging={draggedId === link.id}
-                />
+        {location.pathname === '/admin/analytics' ? (
+          <AnalyticsTab data={analytics} />
+        ) : location.pathname === '/admin/appearance' ? (
+          <AppearanceTab user={user} />
+        ) : location.pathname === '/admin/settings' ? (
+          <SettingsTab user={user} />
+        ) : (
+          <>
+            <header className="mb-10 max-w-4xl mx-auto flex justify-between items-end">
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight mb-2">My Links</h1>
+                <p className="text-muted">Personalize and manage your digital identity.</p>
               </div>
-            ))}
-          </div>
-        </div>
+              <button 
+                onClick={handleAddLink}
+                className="bg-primary hover:bg-primary-hover text-white font-medium py-2.5 px-6 rounded-xl flex items-center space-x-2 transition-colors shadow-lg shadow-primary/25"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Add New Link</span>
+              </button>
+            </header>
+
+            <div className="max-w-4xl mx-auto">
+              <DashboardStats data={analytics} />
+
+              <div className="space-y-4">
+                {links.map((link, index) => (
+                  <div 
+                    key={link.id} 
+                    className="animate-in"
+                    style={{ 
+                      '--animation-delay': `${index * 100}ms`, 
+                      '--animation-duration': '600ms' 
+                    } as React.CSSProperties}
+                  >
+                    <LinkCard 
+                      link={link} 
+                      index={index}
+                      onUpdate={handleUpdateLink}
+                      onDelete={handleDeleteLink}
+                      onDragStart={(e) => handleDragStart(e, link.id)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDragEnd={handleDragEnd}
+                      isDragging={draggedId === link.id}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </main>
 
       <aside className="w-[440px] h-screen fixed right-0 border-l border-border/50 bg-[#090C15] flex flex-col items-center justify-center">
