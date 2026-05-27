@@ -23,7 +23,7 @@ export function Sidebar({ user, className, onNavigate }: SidebarProps) {
     <div className={cn("w-[260px] h-screen bg-sidebar flex flex-col justify-between py-6", className)}>
       <div>
         <div className="px-6 mb-8">
-          <h1 className="text-2xl font-bold tracking-tight">Linkly</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Bioframe</h1>
           <p className="text-muted text-xs mt-1">Admin Dashboard</p>
         </div>
 

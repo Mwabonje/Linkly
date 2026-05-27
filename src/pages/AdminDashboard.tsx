@@ -113,7 +113,7 @@ export function AdminDashboard() {
           <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -ml-2 text-white">
             <Menu className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-bold tracking-tight">Linkly</h1>
+          <h1 className="text-xl font-bold tracking-tight">Bioframe</h1>
         </div>
         <button onClick={() => setIsPreviewOpen(true)} className="px-3 py-1.5 border border-white/10 rounded-lg text-sm bg-surface font-medium text-white shadow-sm flex items-center space-x-2">
           <span>Preview</span>

@@ -14,7 +14,7 @@ export function PublicProfile() {
   useEffect(() => {
     // Reusing the same simulated endpoint for demo purposes, 
     // ideally this fetch specific user data by username
-    document.title = username ? `@${username} | Linkly` : 'My Profile | Linkly';
+    document.title = username ? `@${username} | Bioframe` : 'My Profile | Bioframe';
     
     Promise.all([
       store.getUser(username)
