@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { User } from '../types';
-import { Upload, Check, Save } from 'lucide-react';
+import { Upload, Check, Save, Copy } from 'lucide-react';
 
 export function AppearanceTab({ user, onUpdateUser }: { user: User | null, onUpdateUser: (updates: Partial<User>) => void }) {
   if (!user) return null;
@@ -10,6 +10,13 @@ export function AppearanceTab({ user, onUpdateUser }: { user: User | null, onUpd
   const [role, setRole] = useState(user.role || '');
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || '');
   const [isSaving, setIsSaving] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(`https://bioframe.netlify.app/${username}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const currentTheme = user.theme || 'dark-minimal';
 
@@ -82,14 +89,21 @@ export function AppearanceTab({ user, onUpdateUser }: { user: User | null, onUpd
             <div>
               <label className="text-[10px] uppercase font-semibold text-muted tracking-wider block mb-1.5">Username (Your Link)</label>
               <div className="flex items-center">
-                <span className="bg-background border border-border border-r-0 rounded-l-xl px-4 py-3 text-sm text-muted">bioframe.netlify.app/</span>
+                <span className="bg-background border border-border border-r-0 rounded-l-xl px-4 py-3 text-sm text-muted hidden sm:inline-block">bioframe.netlify.app/</span>
                 <input 
                   type="text" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
-                  className="w-full bg-background border border-border rounded-r-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted/50" 
+                  className="w-full bg-background border border-border sm:rounded-none rounded-l-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted/50" 
                   placeholder="username"
                 />
+                <button
+                  onClick={handleCopyLink}
+                  className="bg-surface hover:bg-white/5 border border-border border-l-0 rounded-r-xl px-4 py-3 text-muted hover:text-white transition-colors flex items-center justify-center min-w-[50px]"
+                  title="Copy Link"
+                >
+                  {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                </button>
               </div>
             </div>
           </div>
