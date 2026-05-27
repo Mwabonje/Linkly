@@ -12,32 +12,25 @@ export function PublicProfile() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    // Reusing the same simulated endpoint for demo purposes, 
-    // ideally this fetch specific user data by username
     document.title = username ? `@${username} | Bioframe` : 'My Profile | Bioframe';
     
-    Promise.all([
-      store.getUser(username)
-    ])
-    .then(([u]) => {
-      if (!u || u.id === '') {
+    if (username) {
+      store.getProfileAndLinks(username).then((data) => {
+        if (!data || data.user.id === '') {
+          setError(true);
+        } else {
+          setUser(data.user);
+          setLinks(data.links.filter(link => link.active));
+        }
+        setLoading(false);
+      }).catch(() => {
         setError(true);
         setLoading(false);
-      } else if (username && u.username !== username) {
-        setError(true);
-        setLoading(false);
-      } else {
-        setUser(u);
-        store.getLinks(u.id).then(l => {
-          setLinks(l.filter((link: LinkType) => link.active));
-          setLoading(false);
-        });
-      }
-    })
-    .catch(() => {
+      });
+    } else {
       setError(true);
       setLoading(false);
-    });
+    }
   }, [username]);
 
   if (loading) return (
