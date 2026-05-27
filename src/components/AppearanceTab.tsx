@@ -1,16 +1,51 @@
+import { useState } from 'react';
 import type { User } from '../types';
-import { Upload, Check } from 'lucide-react';
+import { Upload, Check, Save } from 'lucide-react';
 
 export function AppearanceTab({ user, onUpdateUser }: { user: User | null, onUpdateUser: (updates: Partial<User>) => void }) {
   if (!user) return null;
   
+  const [fullName, setFullName] = useState(user.fullName || '');
+  const [role, setRole] = useState(user.role || '');
+  const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || '');
+  const [isSaving, setIsSaving] = useState(false);
+
   const currentTheme = user.theme || 'dark-minimal';
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    await onUpdateUser({ fullName, role, avatarUrl });
+    setIsSaving(false);
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setAvatarUrl(result);
+        onUpdateUser({ avatarUrl: result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in duration-500 pb-20">
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Appearance</h1>
-        <p className="text-muted">Customize the look and feel of your profile.</p>
+      <header className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight mb-2">Appearance</h1>
+          <p className="text-muted">Customize the look and feel of your profile.</p>
+        </div>
+        <button 
+          onClick={handleSave}
+          disabled={isSaving}
+          className="bg-primary hover:bg-primary-hover text-white px-6 py-2.5 rounded-xl font-medium flex items-center space-x-2 transition-all disabled:opacity-50"
+        >
+          <Save className="w-4 h-4" />
+          <span>{isSaving ? 'Saving...' : 'Save Profile'}</span>
+        </button>
       </header>
 
       <div className="bg-surface border border-white/5 rounded-2xl p-6 mb-8 mt-8 shadow-sm">
@@ -18,20 +53,28 @@ export function AppearanceTab({ user, onUpdateUser }: { user: User | null, onUpd
         <div className="flex flex-col md:flex-row md:items-center space-y-6 md:space-y-0 space-x-0 md:space-x-6 mb-6">
           <div className="relative group">
             <img 
-              src={user.avatarUrl} 
+              src={avatarUrl || 'https://via.placeholder.com/150'} 
               alt="Avatar" 
               className="w-24 h-24 rounded-full object-cover ring-4 ring-background" 
             />
-            <button className="absolute bottom-0 right-0 p-2.5 bg-white hover:bg-gray-200 text-background rounded-full shadow-lg transition-transform hover:scale-105">
+            <label htmlFor="avatar-upload" className="absolute bottom-0 right-0 p-2.5 bg-white hover:bg-gray-200 text-background rounded-full shadow-lg transition-transform hover:scale-105 cursor-pointer">
               <Upload className="w-4 h-4" />
-            </button>
+              <input 
+                id="avatar-upload" 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                onChange={handleAvatarChange} 
+              />
+            </label>
           </div>
           <div className="flex-1 space-y-4">
             <div>
               <label className="text-[10px] uppercase font-semibold text-muted tracking-wider block mb-1.5">Profile Title</label>
               <input 
                 type="text" 
-                defaultValue={user.fullName} 
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted/50" 
               />
             </div>
@@ -40,7 +83,8 @@ export function AppearanceTab({ user, onUpdateUser }: { user: User | null, onUpd
         <div>
           <label className="text-[10px] uppercase font-semibold text-muted tracking-wider block mb-1.5">Bio</label>
           <textarea 
-            defaultValue={user.role} 
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
             rows={3} 
             className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all resize-none placeholder:text-muted/50"
           ></textarea>
