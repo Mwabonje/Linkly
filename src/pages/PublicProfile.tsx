@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import type { User, Link as LinkType } from '../types';
 import { Globe, Mail, MessageSquare, Share2 } from 'lucide-react';
@@ -17,18 +17,22 @@ export function PublicProfile() {
     document.title = username ? `@${username} | Linkly` : 'My Profile | Linkly';
     
     Promise.all([
-      store.getUser(),
-      store.getLinks(),
+      store.getUser(username)
     ])
-    .then(([u, l]) => {
-      // simulate check
-      if (username && u.username !== username && username !== 'alex') {
+    .then(([u]) => {
+      if (!u || u.id === '') {
         setError(true);
+        setLoading(false);
+      } else if (username && u.username !== username) {
+        setError(true);
+        setLoading(false);
       } else {
         setUser(u);
-        setLinks(l.filter((link: LinkType) => link.active));
+        store.getLinks(u.id).then(l => {
+          setLinks(l.filter((link: LinkType) => link.active));
+          setLoading(false);
+        });
       }
-      setLoading(false);
     })
     .catch(() => {
       setError(true);
@@ -88,15 +92,7 @@ export function PublicProfile() {
           ))}
         </div>
 
-        <div 
-          className="mt-16 text-center animate-in"
-          style={{ '--animation-delay': '500ms', '--animation-duration': '700ms' } as React.CSSProperties}
-        >
-          <a href="/admin" className="inline-flex items-center space-x-1.5 opacity-60 hover:opacity-100 transition-opacity">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            <span className="text-xs font-semibold tracking-[0.25em] text-muted uppercase">Linkly</span>
-          </a>
-        </div>
+
       </div>
     </div>
   );
