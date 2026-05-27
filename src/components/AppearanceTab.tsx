@@ -32,8 +32,40 @@ export function AppearanceTab({ user, onUpdateUser }: { user: User | null, onUpd
       const reader = new FileReader();
       reader.onload = (event) => {
         const result = event.target?.result as string;
-        setAvatarUrl(result);
-        onUpdateUser({ avatarUrl: result });
+        
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const MAX_SIZE = 512;
+          
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+            setAvatarUrl(dataUrl);
+            onUpdateUser({ avatarUrl: dataUrl });
+          } else {
+            setAvatarUrl(result);
+            onUpdateUser({ avatarUrl: result });
+          }
+        };
+        img.src = result;
       };
       reader.readAsDataURL(file);
     }
