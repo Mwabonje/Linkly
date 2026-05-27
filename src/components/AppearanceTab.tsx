@@ -6,6 +6,7 @@ export function AppearanceTab({ user, onUpdateUser }: { user: User | null, onUpd
   if (!user) return null;
   
   const [fullName, setFullName] = useState(user.fullName || '');
+  const [username, setUsername] = useState(user.username || '');
   const [role, setRole] = useState(user.role || '');
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || '');
   const [isSaving, setIsSaving] = useState(false);
@@ -14,7 +15,7 @@ export function AppearanceTab({ user, onUpdateUser }: { user: User | null, onUpd
 
   const handleSave = async () => {
     setIsSaving(true);
-    await onUpdateUser({ fullName, role, avatarUrl });
+    await onUpdateUser({ username, fullName, role, avatarUrl });
     setIsSaving(false);
   };
 
@@ -77,6 +78,19 @@ export function AppearanceTab({ user, onUpdateUser }: { user: User | null, onUpd
                 onChange={(e) => setFullName(e.target.value)}
                 className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted/50" 
               />
+            </div>
+            <div>
+              <label className="text-[10px] uppercase font-semibold text-muted tracking-wider block mb-1.5">Username (Your Link)</label>
+              <div className="flex items-center">
+                <span className="bg-background border border-border border-r-0 rounded-l-xl px-4 py-3 text-sm text-muted">bioframe.netlify.app/</span>
+                <input 
+                  type="text" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+                  className="w-full bg-background border border-border rounded-r-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted/50" 
+                  placeholder="username"
+                />
+              </div>
             </div>
           </div>
         </div>

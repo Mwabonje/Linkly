@@ -42,7 +42,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<PublicProfile />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Auth type="login" />} />
         <Route path="/signup" element={<Auth type="signup" />} />
         <Route path="/admin" element={
