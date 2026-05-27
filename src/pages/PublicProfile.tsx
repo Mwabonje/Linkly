@@ -3,6 +3,7 @@ import { useParams, Navigate } from 'react-router-dom';
 import type { User, Link as LinkType } from '../types';
 import { Globe, Mail, MessageSquare, Share2 } from 'lucide-react';
 import { store } from '../lib/store';
+import { getFaviconUrl, cn } from '../lib/utils';
 
 export function PublicProfile() {
   const { username } = useParams<{ username: string }>();
@@ -78,12 +79,23 @@ export function PublicProfile() {
               rel="noopener noreferrer"
               className="group flex items-center w-full p-4 rounded-[20px] bg-surface border border-border hover:bg-surface-hover transition-all duration-300 shadow-md"
             >
-              <div className="flex items-center space-x-4 w-full">
-                 <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-primary/20 text-primary-hover flex-shrink-0">
-                    <span className="font-bold text-lg">{link.title.charAt(0)}</span>
+               <div className="flex items-center space-x-4 w-full">
+                 <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-primary/20 text-primary-hover flex-shrink-0 overflow-hidden relative">
+                    {link.url && getFaviconUrl(link.url) ? (
+                      <img 
+                        src={getFaviconUrl(link.url)!} 
+                        alt="" 
+                        className="w-6 h-6 object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                          e.currentTarget.parentElement?.querySelector('.fallback-text')?.classList.remove('hidden');
+                        }} 
+                      />
+                    ) : null}
+                    <span className={cn("font-bold text-lg fallback-text", link.url && getFaviconUrl(link.url) ? "hidden absolute" : "")}>{link.title.charAt(0)}</span>
                  </div>
                  <span className="font-semibold tracking-wide">{link.title}</span>
-              </div>
+               </div>
             </a>
           ))}
         </div>

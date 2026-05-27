@@ -194,21 +194,6 @@ export function AdminDashboard() {
       </main>
 
       <aside className="hidden xl:flex w-[440px] h-screen fixed right-0 border-l border-border/50 bg-sidebar flex-col items-center justify-center z-30">
-        <div className="w-full absolute top-0 pt-6 px-8 flex justify-end">
-          <button 
-            onClick={() => {
-              if (user?.username) {
-                window.open(`/${user.username}`, '_blank');
-              } else {
-                showToast('Please set a username in the Appearance tab first');
-              }
-            }}
-            className="flex items-center space-x-2 text-muted hover:text-white transition-colors text-sm font-medium px-4 py-2 bg-surface rounded-lg border border-white/5"
-          >
-            <Share2 className="w-4 h-4" />
-            <span>Live Preview</span>
-          </button>
-        </div>
         <MobilePreview user={user} links={links} />
       </aside>
 

@@ -1,4 +1,5 @@
 import type { Link as LinkType, User } from '../types';
+import { getFaviconUrl, cn } from '../lib/utils';
 
 interface MobilePreviewProps {
   user: User | null;
@@ -52,8 +53,19 @@ export function MobilePreview({ user, links, theme = 'dark' }: MobilePreviewProp
                 onClick={(e) => { e.preventDefault(); }} // disable clicks in preview
               >
                 <div className="flex items-center space-x-3 w-full">
-                   <div className="w-10 h-10 flex flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary-hover/20">
-                      <span className="font-semibold">{link.title.charAt(0)}</span>
+                   <div className="w-10 h-10 flex flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary-hover/20 overflow-hidden relative">
+                      {link.url && getFaviconUrl(link.url) ? (
+                        <img 
+                          src={getFaviconUrl(link.url)!} 
+                          alt="" 
+                          className="w-5 h-5 object-contain"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            e.currentTarget.parentElement?.querySelector('.fallback-text')?.classList.remove('hidden');
+                          }} 
+                        />
+                      ) : null}
+                      <span className={cn("font-semibold fallback-text", link.url && getFaviconUrl(link.url) ? "hidden absolute" : "")}>{link.title.charAt(0)}</span>
                    </div>
                    <span className="tracking-wide text-sm truncate">{link.title}</span>
                 </div>

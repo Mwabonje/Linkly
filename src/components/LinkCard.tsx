@@ -1,6 +1,6 @@
 import { GripVertical, Pencil, Trash2, Globe, LayoutGrid, Check, X } from 'lucide-react';
 import type { Link as LinkType } from '../types';
-import { cn } from '../lib/utils';
+import { cn, getFaviconUrl } from '../lib/utils';
 import { useState } from 'react';
 
 interface LinkCardProps {
@@ -49,8 +49,19 @@ export function LinkCard({ link, onUpdate, onDelete, index, onDragStart, onDragO
           <GripVertical className="w-5 h-5" />
         </div>
         
-        <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
-          <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5 text-muted" />
+        <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden relative">
+          {link.url && getFaviconUrl(link.url) ? (
+            <img 
+              src={getFaviconUrl(link.url)!} 
+              alt="" 
+              className="w-5 h-5 sm:w-6 sm:h-6 object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+                e.currentTarget.parentElement?.querySelector('.fallback-icon')?.classList.remove('hidden');
+              }} 
+            />
+          ) : null}
+          <LayoutGrid className={cn("w-4 h-4 sm:w-5 sm:h-5 text-muted fallback-icon", link.url && getFaviconUrl(link.url) ? "hidden absolute" : "")} />
         </div>
         
         <div className="flex-1 min-w-0 pr-4">
