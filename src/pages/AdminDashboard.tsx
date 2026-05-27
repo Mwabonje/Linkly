@@ -29,6 +29,9 @@ export function AdminDashboard() {
       store.getAnalytics()
     ]).then(([u, l, a]) => {
       setUser(u);
+      if (u && u.theme) {
+        document.documentElement.dataset.theme = u.theme;
+      }
       setLinks(l);
       setAnalytics(a);
       setLoading(false);

@@ -21,6 +21,9 @@ export function PublicProfile() {
         } else {
           setUser(data.user);
           setLinks(data.links.filter(link => link.active));
+          if (data.user.theme) {
+            document.documentElement.dataset.theme = data.user.theme;
+          }
         }
         setLoading(false);
       }).catch(() => {

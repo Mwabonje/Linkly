@@ -61,6 +61,7 @@ export const store = {
           fullName: data.full_name || 'My Name',
           role: data.role || '',
           avatarUrl: data.avatar_url || defaultUser.avatarUrl,
+          theme: data.theme || 'dark-minimal',
         };
       }
     } catch (e) {
@@ -88,6 +89,7 @@ export const store = {
           fullName: data.full_name || 'My Name',
           role: data.role || '',
           avatarUrl: data.avatar_url || defaultUser.avatarUrl,
+          theme: data.theme || 'dark-minimal',
         };
 
         let rawLinks = (data.links || []) as any[];
@@ -123,6 +125,7 @@ export const store = {
           full_name: user.fullName,
           role: user.role,
           avatar_url: user.avatarUrl,
+          theme: user.theme || 'dark-minimal',
           updated_at: new Date().toISOString()
         });
     } catch (e) {

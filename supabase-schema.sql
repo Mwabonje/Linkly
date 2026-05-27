@@ -7,6 +7,7 @@ create table public.profiles (
   full_name text,
   role text,
   avatar_url text,
+  theme text default 'dark-minimal',
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
