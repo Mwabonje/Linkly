@@ -62,6 +62,7 @@ export const store = {
           role: data.role || '',
           avatarUrl: data.avatar_url || defaultUser.avatarUrl,
           theme: data.theme || 'dark-minimal',
+          views: data.views || 0,
         };
       }
     } catch (e) {
@@ -90,6 +91,7 @@ export const store = {
           role: data.role || '',
           avatarUrl: data.avatar_url || defaultUser.avatarUrl,
           theme: data.theme || 'dark-minimal',
+          views: data.views || 0,
         };
 
         let rawLinks = (data.links || []) as any[];
@@ -198,7 +200,45 @@ export const store = {
     }
   },
 
+  recordProfileView: async (profileId: string) => {
+    if (!supabase) return;
+    try {
+      await supabase.rpc('increment_profile_view', { profile_id: profileId });
+    } catch (e) {
+      console.error('Failed to record profile view:', e);
+    }
+  },
+
   getAnalytics: async (): Promise<AnalyticsData> => {
-    return defaultAnalytics;
+    if (!supabase) return defaultAnalytics;
+    try {
+      const session = await getSession();
+      if (!session) return defaultAnalytics;
+
+      const [profileResponse, linksResponse] = await Promise.all([
+        supabase.from('profiles').select('views').eq('id', session.user.id).single(),
+        supabase.from('links').select('clicks').eq('user_id', session.user.id)
+      ]);
+
+      const totalViews = profileResponse.data?.views || 0;
+      
+      let totalClicks = 0;
+      if (linksResponse.data) {
+        totalClicks = linksResponse.data.reduce((sum, link) => sum + (link.clicks || 0), 0);
+      }
+
+      const avgCtr = totalViews > 0 ? (totalClicks / totalViews) * 100 : 0;
+
+      return {
+        totalViews,
+        viewsGrowth: 0, // Mock growth for now
+        totalClicks,
+        clicksGrowth: 0, // Mock growth for now
+        avgCtr: parseFloat(avgCtr.toFixed(1))
+      };
+    } catch (e) {
+      console.error('Failed to get analytics:', e);
+      return defaultAnalytics;
+    }
   }
 };

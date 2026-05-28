@@ -18,7 +18,7 @@ export function DashboardStats({ data }: { data: AnalyticsData | null }) {
         </div>
         <div className="text-muted text-sm font-medium mb-1">Total Views</div>
         <div className="text-3xl font-bold tracking-tight">
-          {(data.totalViews / 1000).toFixed(1)}k
+          {data.totalViews >= 1000 ? (data.totalViews / 1000).toFixed(1) + 'k' : data.totalViews}
         </div>
       </div>
 
@@ -34,7 +34,7 @@ export function DashboardStats({ data }: { data: AnalyticsData | null }) {
         </div>
         <div className="text-muted text-sm font-medium mb-1">Clicks</div>
         <div className="text-3xl font-bold tracking-tight">
-          {(data.totalClicks / 1000).toFixed(1)}k
+          {data.totalClicks >= 1000 ? (data.totalClicks / 1000).toFixed(1) + 'k' : data.totalClicks}
         </div>
       </div>
 

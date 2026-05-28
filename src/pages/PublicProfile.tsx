@@ -25,6 +25,11 @@ export function PublicProfile() {
           if (data.user.theme) {
             document.documentElement.dataset.theme = data.user.theme;
           }
+          const hasViewedKey = `viewed_${data.user.id}`;
+          if (!sessionStorage.getItem(hasViewedKey)) {
+            sessionStorage.setItem(hasViewedKey, 'true');
+            store.recordProfileView(data.user.id);
+          }
         }
         setLoading(false);
       }).catch(() => {

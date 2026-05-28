@@ -8,8 +8,17 @@ create table if not exists public.profiles (
   role text,
   avatar_url text,
   theme text default 'dark-minimal',
+  views integer default 0,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
+
+-- Add views column if the table already existed before the above was added
+do $$
+begin
+  if not exists (select 1 from information_schema.columns where table_schema='public' and table_name='profiles' and column_name='views') then
+    alter table public.profiles add column views integer default 0;
+  end if;
+end $$;
 
 -- Turn on Row Level Security (RLS) for profiles
 alter table public.profiles enable row level security;
@@ -67,3 +76,14 @@ begin
   where id = link_id;
 end;
 $$ language plpgsql security definer;
+
+-- 4. Profile View Tracking Function (RPC)
+create or replace function increment_profile_view(profile_id uuid)
+returns void as $$
+begin
+  update public.profiles
+  set views = views + 1
+  where id = profile_id;
+end;
+$$ language plpgsql security definer;
+

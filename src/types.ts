@@ -13,6 +13,7 @@ export interface User {
   role: string;
   avatarUrl: string;
   theme?: string;
+  views?: number;
 }
 
 export interface AnalyticsData {
