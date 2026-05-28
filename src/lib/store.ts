@@ -189,6 +189,15 @@ export const store = {
     }
   },
 
+  recordClick: async (linkId: string) => {
+    if (!supabase) return;
+    try {
+      await supabase.rpc('increment_click', { link_id: linkId });
+    } catch (e) {
+      console.error('Failed to record click:', e);
+    }
+  },
+
   getAnalytics: async (): Promise<AnalyticsData> => {
     return defaultAnalytics;
   }

@@ -1,7 +1,7 @@
 -- Supabase Schema for Linkly
 
 -- 1. Create the `profiles` table
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid references auth.users on delete cascade not null primary key,
   username text unique not null,
   full_name text,
@@ -28,7 +28,7 @@ create policy "Users can update own profile."
   using ( auth.uid() = id );
 
 -- 2. Create the `links` table
-create table public.links (
+create table if not exists public.links (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references public.profiles(id) on delete cascade not null,
   title text not null,
@@ -57,3 +57,13 @@ create policy "Users can update their own links."
 create policy "Users can delete their own links."
   on links for delete
   using ( auth.uid() = user_id );
+
+-- 3. Click Tracking Function (RPC)
+create or replace function increment_click(link_id uuid)
+returns void as $$
+begin
+  update public.links
+  set clicks = clicks + 1
+  where id = link_id;
+end;
+$$ language plpgsql security definer;

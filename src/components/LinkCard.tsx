@@ -1,4 +1,4 @@
-import { GripVertical, Pencil, Trash2, Globe, LayoutGrid, Check, X } from 'lucide-react';
+import { GripVertical, Pencil, Trash2, Globe, LayoutGrid, Check, X, TrendingUp } from 'lucide-react';
 import type { Link as LinkType } from '../types';
 import { cn, getFaviconUrl } from '../lib/utils';
 import { useState } from 'react';
@@ -102,8 +102,9 @@ export function LinkCard({ link, onUpdate, onDelete, index, onDragStart, onDragO
         
         {!isEditing && (
           <div className="text-right px-4 hidden md:block">
-            <div className="text-sm font-medium">
-              {link.clicks >= 1000 ? (link.clicks / 1000).toFixed(1) + 'k' : link.clicks}
+            <div className="text-sm font-medium flex justify-end items-center space-x-1.5">
+              <span>{link.clicks >= 1000 ? (link.clicks / 1000).toFixed(1) + 'k' : link.clicks}</span>
+              {link.clicks > 0 && <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />}
             </div>
             <div className="text-xs text-muted">Clicks</div>
           </div>

@@ -76,6 +76,7 @@ export function PublicProfile() {
               key={link.id}
               href={link.url}
               target="_blank"
+              onClick={() => store.recordClick(link.id)}
               rel="noopener noreferrer"
               className="group flex items-center w-full p-4 rounded-[20px] bg-surface border border-border hover:bg-surface-hover transition-all duration-300 shadow-md"
             >
