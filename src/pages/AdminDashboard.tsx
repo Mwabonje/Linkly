@@ -9,6 +9,7 @@ export function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [links, setLinks] = useState<LinkType[]>([]);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [timeframe, setTimeframe] = useState<'all' | 'today' | '7d' | '30d'>('today');
   const [loading, setLoading] = useState(true);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -26,17 +27,21 @@ export function AdminDashboard() {
     Promise.all([
       store.getUser(),
       store.getLinks(),
-      store.getAnalytics()
-    ]).then(([u, l, a]) => {
+    ]).then(([u, l]) => {
       setUser(u);
       if (u && u.theme) {
         document.documentElement.dataset.theme = u.theme;
       }
       setLinks(l);
-      setAnalytics(a);
       setLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    if (!loading && user) {
+      store.getAnalytics(timeframe).then(a => setAnalytics(a));
+    }
+  }, [timeframe, loading, user]);
 
   const handleUpdateUser = async (updates: Partial<User>) => {
     if (!user) return;
@@ -163,10 +168,29 @@ export function AdminDashboard() {
             </header>
 
             <div className="max-w-4xl mx-auto">
+              <div className="flex justify-end mb-4">
+                <select 
+                  className="bg-surface border border-border rounded-lg text-sm px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary/50 text-white cursor-pointer"
+                  value={timeframe}
+                  onChange={(e) => setTimeframe(e.target.value as any)}
+                >
+                  <option value="today">Today</option>
+                  <option value="7d">Last 7 Days</option>
+                  <option value="30d">Last 30 Days</option>
+                  <option value="all">All Time</option>
+                </select>
+              </div>
+
               <DashboardStats data={analytics} />
 
-              <div className="space-y-4">
-                {links.map((link, index) => (
+              <div className="space-y-4 pt-4">
+                {links.map((link, index) => {
+                  const displayLink = {
+                    ...link,
+                    clicks: analytics?.linkClicks?.[link.id] ?? link.clicks
+                  };
+                  
+                  return (
                   <div 
                     key={link.id} 
                     className="animate-in"
@@ -176,7 +200,7 @@ export function AdminDashboard() {
                     } as React.CSSProperties}
                   >
                     <LinkCard 
-                      link={link} 
+                      link={displayLink} 
                       index={index}
                       onUpdate={handleUpdateLink}
                       onDelete={handleDeleteLink}
@@ -186,7 +210,7 @@ export function AdminDashboard() {
                       isDragging={draggedId === link.id}
                     />
                   </div>
-                ))}
+                )})}
               </div>
             </div>
           </>

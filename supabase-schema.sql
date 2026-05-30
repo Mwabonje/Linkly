@@ -24,16 +24,19 @@ end $$;
 alter table public.profiles enable row level security;
 
 -- Create policies for profiles
+drop policy if exists "Public profiles are viewable by everyone." on public.profiles;
 create policy "Public profiles are viewable by everyone."
-  on profiles for select
+  on public.profiles for select
   using ( true );
 
+drop policy if exists "Users can insert their own profile." on public.profiles;
 create policy "Users can insert their own profile."
-  on profiles for insert
+  on public.profiles for insert
   with check ( auth.uid() = id );
 
+drop policy if exists "Users can update own profile." on public.profiles;
 create policy "Users can update own profile."
-  on profiles for update
+  on public.profiles for update
   using ( auth.uid() = id );
 
 -- 2. Create the `links` table
@@ -51,39 +54,114 @@ create table if not exists public.links (
 alter table public.links enable row level security;
 
 -- Create policies for links
+drop policy if exists "Links are viewable by everyone." on public.links;
 create policy "Links are viewable by everyone."
-  on links for select
+  on public.links for select
   using ( true );
 
+drop policy if exists "Users can insert their own links." on public.links;
 create policy "Users can insert their own links."
-  on links for insert
+  on public.links for insert
   with check ( auth.uid() = user_id );
 
+drop policy if exists "Users can update their own links." on public.links;
 create policy "Users can update their own links."
-  on links for update
+  on public.links for update
   using ( auth.uid() = user_id );
 
+drop policy if exists "Users can delete their own links." on public.links;
 create policy "Users can delete their own links."
-  on links for delete
+  on public.links for delete
   using ( auth.uid() = user_id );
 
--- 3. Click Tracking Function (RPC)
+-- 3. Analytics Tracking Tables
+create table if not exists public.link_clicks (
+  id uuid default gen_random_uuid() primary key,
+  link_id uuid references public.links(id) on delete cascade not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+create index if not exists link_clicks_link_id_idx on public.link_clicks(link_id);
+create index if not exists link_clicks_created_at_idx on public.link_clicks(created_at);
+
+create table if not exists public.profile_views (
+  id uuid default gen_random_uuid() primary key,
+  profile_id uuid references public.profiles(id) on delete cascade not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+create index if not exists profile_views_profile_id_idx on public.profile_views(profile_id);
+create index if not exists profile_views_created_at_idx on public.profile_views(created_at);
+
+
+-- 4. Click Tracking Function (RPC)
 create or replace function increment_click(link_id uuid)
 returns void as $$
 begin
   update public.links
   set clicks = clicks + 1
   where id = link_id;
+  
+  insert into public.link_clicks (link_id) values (link_id);
 end;
 $$ language plpgsql security definer;
 
--- 4. Profile View Tracking Function (RPC)
+-- 5. Profile View Tracking Function (RPC)
 create or replace function increment_profile_view(profile_id uuid)
 returns void as $$
 begin
   update public.profiles
   set views = views + 1
   where id = profile_id;
+
+  insert into public.profile_views (profile_id) values (profile_id);
+end;
+$$ language plpgsql security definer;
+
+-- 6. Get Analytics Data Function (RPC)
+create or replace function get_analytics_data(p_profile_id uuid, p_start_date timestamp with time zone default null)
+returns json as $$
+declare
+  v_total_views integer;
+  v_total_clicks integer;
+  v_link_clicks json;
+begin
+  if p_start_date is null then
+    -- all time stats
+    select views into v_total_views from public.profiles where id = p_profile_id;
+    
+    select coalesce(sum(clicks), 0) into v_total_clicks from public.links where user_id = p_profile_id;
+    
+    select coalesce(json_agg(json_build_object('link_id', id, 'clicks', coalesce(clicks, 0))), '[]'::json) into v_link_clicks
+    from public.links
+    where user_id = p_profile_id;
+  else
+    -- time filtered stats
+    select count(*) into v_total_views
+    from public.profile_views
+    where profile_id = p_profile_id
+    and created_at >= p_start_date;
+    
+    select count(*) into v_total_clicks
+    from public.link_clicks lc
+    join public.links l on l.id = lc.link_id
+    where l.user_id = p_profile_id
+    and lc.created_at >= p_start_date;
+    
+    select coalesce(json_agg(json_build_object('link_id', l.id, 'clicks', coalesce(lc_counts.clicks, 0))), '[]'::json) into v_link_clicks
+    from public.links l
+    left join (
+      select link_id, count(*) as clicks
+      from public.link_clicks
+      where created_at >= p_start_date
+      group by link_id
+    ) lc_counts on lc_counts.link_id = l.id
+    where l.user_id = p_profile_id;
+  end if;
+
+  return json_build_object(
+    'totalViews', coalesce(v_total_views, 0),
+    'totalClicks', coalesce(v_total_clicks, 0),
+    'linkClicks', coalesce(v_link_clicks, '[]'::json)
+  );
 end;
 $$ language plpgsql security definer;
 

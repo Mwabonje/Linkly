@@ -16,7 +16,8 @@ const defaultAnalytics: AnalyticsData = {
   viewsGrowth: 0,
   totalClicks: 0,
   clicksGrowth: 0,
-  avgCtr: 0
+  avgCtr: 0,
+  linkClicks: {}
 };
 
 let sessionPromise: Promise<any> | null = null;
@@ -209,32 +210,52 @@ export const store = {
     }
   },
 
-  getAnalytics: async (): Promise<AnalyticsData> => {
+  getAnalytics: async (timeframe: 'all' | 'today' | '7d' | '30d' = 'all'): Promise<AnalyticsData> => {
     if (!supabase) return defaultAnalytics;
     try {
       const session = await getSession();
       if (!session) return defaultAnalytics;
 
-      const [profileResponse, linksResponse] = await Promise.all([
-        supabase.from('profiles').select('views').eq('id', session.user.id).single(),
-        supabase.from('links').select('clicks').eq('user_id', session.user.id)
-      ]);
-
-      const totalViews = profileResponse.data?.views || 0;
-      
-      let totalClicks = 0;
-      if (linksResponse.data) {
-        totalClicks = linksResponse.data.reduce((sum, link) => sum + (link.clicks || 0), 0);
+      let startDate: string | null = null;
+      if (timeframe !== 'all') {
+        const date = new Date();
+        if (timeframe === 'today') {
+          date.setHours(0, 0, 0, 0);
+        } else if (timeframe === '7d') {
+          date.setDate(date.getDate() - 7);
+        } else if (timeframe === '30d') {
+          date.setDate(date.getDate() - 30);
+        }
+        startDate = date.toISOString();
       }
 
+      const { data, error } = await supabase.rpc('get_analytics_data', {
+        p_profile_id: session.user.id,
+        p_start_date: startDate
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      const totalViews = data.totalViews || 0;
+      const totalClicks = data.totalClicks || 0;
+      const linkClicksArray = data.linkClicks || [];
+
       const avgCtr = totalViews > 0 ? (totalClicks / totalViews) * 100 : 0;
+      
+      const linkClicksMap: Record<string, number> = {};
+      linkClicksArray.forEach((item: any) => {
+        linkClicksMap[item.link_id] = item.clicks;
+      });
 
       return {
         totalViews,
         viewsGrowth: 0, // Mock growth for now
         totalClicks,
         clicksGrowth: 0, // Mock growth for now
-        avgCtr: parseFloat(avgCtr.toFixed(1))
+        avgCtr: parseFloat(avgCtr.toFixed(1)),
+        linkClicks: linkClicksMap
       };
     } catch (e) {
       console.error('Failed to get analytics:', e);

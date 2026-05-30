@@ -22,4 +22,5 @@ export interface AnalyticsData {
   totalClicks: number;
   clicksGrowth: number;
   avgCtr: number;
+  linkClicks: Record<string, number>;
 }
