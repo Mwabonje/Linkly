@@ -23,4 +23,5 @@ export interface AnalyticsData {
   clicksGrowth: number;
   avgCtr: number;
   linkClicks: Record<string, number>;
+  dailyData?: { date: string, views: number, clicks: number }[];
 }

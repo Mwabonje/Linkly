@@ -2,17 +2,9 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { DashboardStats } from './DashboardStats';
 import type { AnalyticsData } from '../types';
 
-const mockChartData = [
-  { name: 'Mon', views: 4000, clicks: 2400 },
-  { name: 'Tue', views: 3000, clicks: 1398 },
-  { name: 'Wed', views: 2000, clicks: 9800 },
-  { name: 'Thu', views: 2780, clicks: 3908 },
-  { name: 'Fri', views: 1890, clicks: 4800 },
-  { name: 'Sat', views: 2390, clicks: 3800 },
-  { name: 'Sun', views: 3490, clicks: 4300 },
-];
-
 export function AnalyticsTab({ data }: { data: AnalyticsData | null }) {
+  const chartData = data?.dailyData?.length ? data.dailyData : [];
+
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in duration-500 pb-20">
       <header className="mb-10">
@@ -28,7 +20,7 @@ export function AnalyticsTab({ data }: { data: AnalyticsData | null }) {
         </h3>
         <div className="h-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={mockChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#6E8649" stopOpacity={0.4}/>
@@ -37,7 +29,7 @@ export function AnalyticsTab({ data }: { data: AnalyticsData | null }) {
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#2D531A" vertical={false} />
               <XAxis 
-                dataKey="name" 
+                dataKey="date" 
                 stroke="#A3BA8B" 
                 fontSize={12} 
                 tickLine={false} 
@@ -49,7 +41,7 @@ export function AnalyticsTab({ data }: { data: AnalyticsData | null }) {
                 fontSize={12} 
                 tickLine={false} 
                 axisLine={false} 
-                tickFormatter={(value) => `${value / 1000}k`} 
+                tickFormatter={(value) => value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value} 
                 dx={-10}
               />
               <Tooltip

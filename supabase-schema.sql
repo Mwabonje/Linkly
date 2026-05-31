@@ -123,9 +123,11 @@ declare
   v_total_views integer;
   v_total_clicks integer;
   v_link_clicks json;
+  v_daily_data json;
+  v_chart_start_date timestamp with time zone;
 begin
   if p_start_date is null then
-    -- all time stats
+    -- all time stats for totals
     select views into v_total_views from public.profiles where id = p_profile_id;
     
     select coalesce(sum(clicks), 0) into v_total_clicks from public.links where user_id = p_profile_id;
@@ -133,6 +135,8 @@ begin
     select coalesce(json_agg(json_build_object('link_id', id, 'clicks', coalesce(clicks, 0))), '[]'::json) into v_link_clicks
     from public.links
     where user_id = p_profile_id;
+
+    v_chart_start_date := current_date - interval '30 days';
   else
     -- time filtered stats
     select count(*) into v_total_views
@@ -155,13 +159,41 @@ begin
       group by link_id
     ) lc_counts on lc_counts.link_id = l.id
     where l.user_id = p_profile_id;
+
+    v_chart_start_date := date_trunc('day', p_start_date);
   end if;
+
+  -- Generate daily data for charts
+  select coalesce(json_agg(json_build_object('date', date_txt, 'views', views, 'clicks', clicks)), '[]'::json) into v_daily_data
+  from (
+      select to_char(d.date, 'Dy, Mon DD, YYYY') as date_txt, d.date, coalesce(v.views, 0) as views, coalesce(c.clicks, 0) as clicks
+      from (
+        select generate_series(v_chart_start_date, current_date + interval '1 day', '1 day'::interval)::date as date
+      ) d
+      left join (
+        select date_trunc('day', created_at)::date as date, count(*) as views
+        from public.profile_views
+        where profile_id = p_profile_id and created_at >= v_chart_start_date
+        group by 1
+      ) v on v.date = d.date
+      left join (
+        select date_trunc('day', lc.created_at)::date as date, count(*) as clicks
+        from public.link_clicks lc
+        join public.links l on l.id = lc.link_id
+        where l.user_id = p_profile_id and lc.created_at >= v_chart_start_date
+        group by 1
+      ) c on c.date = d.date
+      where d.date <= current_date
+      order by d.date
+  ) aggregated;
 
   return json_build_object(
     'totalViews', coalesce(v_total_views, 0),
     'totalClicks', coalesce(v_total_clicks, 0),
-    'linkClicks', coalesce(v_link_clicks, '[]'::json)
+    'linkClicks', coalesce(v_link_clicks, '[]'::json),
+    'dailyData', v_daily_data
   );
 end;
 $$ language plpgsql security definer;
+
 

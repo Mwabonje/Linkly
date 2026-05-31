@@ -17,7 +17,8 @@ const defaultAnalytics: AnalyticsData = {
   totalClicks: 0,
   clicksGrowth: 0,
   avgCtr: 0,
-  linkClicks: {}
+  linkClicks: {},
+  dailyData: []
 };
 
 let sessionPromise: Promise<any> | null = null;
@@ -255,7 +256,8 @@ export const store = {
         totalClicks,
         clicksGrowth: 0, // Mock growth for now
         avgCtr: parseFloat(avgCtr.toFixed(1)),
-        linkClicks: linkClicksMap
+        linkClicks: linkClicksMap,
+        dailyData: data.dailyData || []
       };
     } catch (e) {
       console.error('Failed to get analytics:', e);
