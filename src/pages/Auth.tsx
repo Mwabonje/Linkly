@@ -1,24 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Mail, Lock, ShieldAlert, ArrowRight } from 'lucide-react';
+import { Mail, Lock, ShieldAlert, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
-export function Auth({ type = 'login' }: { type?: 'login' | 'signup' }) {
+export function Auth({ type = 'login' }: { type?: 'login' | 'signup' | 'forgot-password' | 'update-password' }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (supabase) {
+    if (supabase && type !== 'forgot-password' && type !== 'update-password') {
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) {
           navigate('/admin');
         }
       });
     }
-  }, [navigate]);
+  }, [navigate, type]);
 
   if (!supabase) {
     return (
@@ -49,6 +51,34 @@ export function Auth({ type = 'login' }: { type?: 'login' | 'signup' }) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setMessage(null);
+
+    if (type === 'forgot-password') {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/update-password`,
+      });
+      if (resetError) {
+        setError(resetError.message);
+      } else {
+        setMessage('Check your email for the password reset link.');
+      }
+      setLoading(false);
+      return;
+    }
+    
+    if (type === 'update-password') {
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: password
+      });
+      if (updateError) {
+        setError(updateError.message);
+      } else {
+        setMessage('Password updated successfully. You can now login.');
+        setTimeout(() => navigate('/login'), 2000);
+      }
+      setLoading(false);
+      return;
+    }
 
     const { error: authError } = type === 'login'
       ? await supabase.auth.signInWithPassword({ email, password })
@@ -59,9 +89,23 @@ export function Auth({ type = 'login' }: { type?: 'login' | 'signup' }) {
     } else if (type === 'login') {
       navigate('/admin');
     } else {
-      setError('Check your email for the confirmation link.');
+      setMessage('Check your email for the confirmation link.');
     }
     setLoading(false);
+  };
+
+  const titles = {
+    login: 'Welcome back',
+    signup: 'Create your account',
+    'forgot-password': 'Reset password',
+    'update-password': 'Update password'
+  };
+
+  const subtitles = {
+    login: 'Manage your digital identity in one place.',
+    signup: 'Manage your digital identity in one place.',
+    'forgot-password': 'Enter your email to receive a reset link.',
+    'update-password': 'Enter your new password below.'
   };
 
   return (
@@ -72,9 +116,9 @@ export function Auth({ type = 'login' }: { type?: 'login' | 'signup' }) {
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
-            {type === 'login' ? 'Welcome back' : 'Create your account'}
+            {titles[type]}
           </h1>
-          <p className="text-muted">Manage your digital identity in one place.</p>
+          <p className="text-muted">{subtitles[type]}</p>
         </div>
 
         <form onSubmit={handleAuth} className="bg-surface border border-border p-8 rounded-3xl shadow-xl space-y-5">
@@ -83,37 +127,64 @@ export function Auth({ type = 'login' }: { type?: 'login' | 'signup' }) {
               {error}
             </div>
           )}
+          {message && (
+            <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl text-primary text-sm font-medium">
+              {message}
+            </div>
+          )}
           
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-muted mb-1.5 ml-1">Email address</label>
-              <div className="relative">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted/40"
-                  placeholder="name@example.com"
-                  required
-                />
-                <Mail className="w-5 h-5 text-muted absolute left-4 top-1/2 -translate-y-1/2" />
+            {type !== 'update-password' && (
+              <div>
+                <label className="block text-sm font-medium text-muted mb-1.5 ml-1">Email address</label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted/40"
+                    placeholder="name@example.com"
+                    required
+                  />
+                  <Mail className="w-5 h-5 text-muted absolute left-4 top-1/2 -translate-y-1/2" />
+                </div>
               </div>
-            </div>
+            )}
             
-            <div>
-              <label className="block text-sm font-medium text-muted mb-1.5 ml-1">Password</label>
-              <div className="relative">
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted/40"
-                  placeholder="••••••••"
-                  required
-                />
-                <Lock className="w-5 h-5 text-muted absolute left-4 top-1/2 -translate-y-1/2" />
+            {type !== 'forgot-password' && (
+              <div>
+                <div className="flex justify-between items-center mb-1.5 ml-1">
+                  <label className="block text-sm font-medium text-muted">Password</label>
+                  {type === 'login' && (
+                    <button 
+                      type="button" 
+                      onClick={() => navigate('/forgot-password')} 
+                      className="text-xs text-primary hover:text-primary-hover transition-colors font-medium"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-background border border-border rounded-xl pl-11 pr-11 py-3 text-sm font-medium text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-muted/40"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <Lock className="w-5 h-5 text-muted absolute left-4 top-1/2 -translate-y-1/2" />
+                  <button 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-white transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <button
@@ -121,20 +192,34 @@ export function Auth({ type = 'login' }: { type?: 'login' | 'signup' }) {
             disabled={loading}
             className="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-all shadow-lg shadow-primary/25 disabled:opacity-50 mt-6"
           >
-            <span>{loading ? 'Processing...' : (type === 'login' ? 'Sign In' : 'Sign Up')}</span>
+            <span>
+              {loading 
+                ? 'Processing...' 
+                : type === 'login' 
+                  ? 'Sign In' 
+                  : type === 'signup' 
+                    ? 'Sign Up' 
+                    : type === 'forgot-password'
+                      ? 'Send Reset Link'
+                      : 'Update Password'}
+            </span>
             {!loading && <ArrowRight className="w-4 h-4" />}
           </button>
 
           <div className="mt-6 text-center text-sm">
             <span className="text-muted">
-              {type === 'login' ? "Don't have an account? " : "Already have an account? "}
+              {type === 'login' 
+                ? "Don't have an account? " 
+                : type === 'signup' 
+                  ? "Already have an account? "
+                  : "Remember your password? "}
             </span>
             <button
               type="button"
-              onClick={() => navigate(type === 'login' ? '/signup' : '/login')}
+              onClick={() => navigate(type === 'signup' ? '/login' : '/signup')}
               className="text-primary hover:text-white font-semibold transition-colors"
             >
-              {type === 'login' ? 'Sign up' : 'Log in'}
+              {type === 'signup' ? 'Log in' : 'Sign up'}
             </button>
           </div>
         </form>

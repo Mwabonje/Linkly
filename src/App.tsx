@@ -45,6 +45,8 @@ export default function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Auth type="login" />} />
         <Route path="/signup" element={<Auth type="signup" />} />
+        <Route path="/forgot-password" element={<Auth type="forgot-password" />} />
+        <Route path="/update-password" element={<Auth type="update-password" />} />
         <Route path="/admin" element={
           <ProtectedRoute>
             <AdminDashboard />
